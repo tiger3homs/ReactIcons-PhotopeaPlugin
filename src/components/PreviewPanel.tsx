@@ -36,6 +36,15 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
     toast.success('SVG downloaded!');
   };
 
+  const baseUrl = window.location.origin;
+  const svgUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.svg?size=${size}&color=${encodeURIComponent(color)}`;
+  const pngUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.png?size=${size}&color=${encodeURIComponent(color)}`;
+
+  const copyUrl = (url: string, type: string) => {
+    navigator.clipboard.writeText(url);
+    toast.success(`${type} URL copied to clipboard!`);
+  };
+
   return (
     <AnimatePresence>
       {icon && (
@@ -138,6 +147,27 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                 {isFavorite ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
                 <span>{isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>
               </button>
+
+              <div className="pt-4 space-y-3">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">Direct Links (Drag to Photopea)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => copyUrl(svgUrl, 'SVG')}
+                    className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-xs font-medium hover:bg-[var(--border-color)] transition-all border border-[var(--border-color)]"
+                  >
+                    <span>Copy SVG URL</span>
+                  </button>
+                  <button
+                    onClick={() => copyUrl(pngUrl, 'PNG')}
+                    className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-xs font-medium hover:bg-[var(--border-color)] transition-all border border-[var(--border-color)]"
+                  >
+                    <span>Copy PNG URL</span>
+                  </button>
+                </div>
+                <p className="text-[10px] text-[var(--text-secondary)] italic text-center">
+                  Tip: You can also drag icons from the grid directly into Photopea.
+                </p>
+              </div>
             </div>
           </div>
 

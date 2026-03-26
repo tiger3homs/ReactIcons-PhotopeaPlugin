@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { handler as searchHandler } from "./netlify/functions/search.js";
 import { handler as pluginConfigHandler } from "./netlify/functions/plugin-config.js";
+import { handler as iconSvgHandler } from "./netlify/functions/icon-svg.js";
+import { handler as iconPngHandler } from "./netlify/functions/icon-png.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +47,37 @@ async function startServer() {
 
   app.get("/api/hello", async (req, res) => {
     res.json({ message: "Hello from local mock Netlify Function!" });
+  });
+
+  // Mock icon-svg and icon-png
+  app.get("/icons/:library/:name", async (req, res) => {
+    const { library, name } = req.params;
+    const isPng = name.endsWith('.png');
+    const isSvg = name.endsWith('.svg');
+    const iconName = name.replace('.png', '').replace('.svg', '');
+
+    const event = {
+      path: `/.netlify/functions/icon-${isPng ? 'png' : 'svg'}/${library}/${iconName}`,
+      queryStringParameters: req.query,
+      httpMethod: "GET",
+    };
+
+    const handler = isPng ? iconPngHandler : iconSvgHandler;
+    // @ts-ignore
+    const result = await handler(event, {});
+
+    if (result && typeof result === 'object') {
+      const headers = result.headers || {};
+      res.status(result.statusCode || 200).set(headers);
+      
+      if (result.isBase64Encoded) {
+        res.send(Buffer.from(result.body || '', 'base64'));
+      } else {
+        res.send(result.body);
+      }
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
   });
 
   // Vite middleware for development

@@ -4,6 +4,18 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "/icons/:library/:name.svg"
+  to = "/.netlify/functions/icon-svg/:library/:name"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/icons/:library/:name.png"
+  to = "/.netlify/functions/icon-png/:library/:name"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/plugin.json"
   to = "/.netlify/functions/plugin-config"
   status = 200
