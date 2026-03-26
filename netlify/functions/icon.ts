@@ -4,18 +4,24 @@ import { createElement } from 'react';
 import sharp from 'sharp';
 
 export const handler: Handler = async (event) => {
-  const { library, name, size, color } = event.queryStringParameters || {};
+  const qs = event.queryStringParameters || {};
+  const library = qs.library;
+  const name = qs.name;
+  const size = parseInt(qs.size || '64');
+  const color = decodeURIComponent(qs.color || '%23000000');
+  const format = (qs.format || 'svg').toLowerCase(); // "svg" or "png"
 
-  console.log('Params received:', { library, name, size, color });
+  console.log('Unified Icon Request:', { library, name, size, color, format });
 
   if (!library || !name) {
     return {
       statusCode: 400,
-      body: `Missing params. Received: ${JSON.stringify(event.queryStringParameters)}`
+      body: `Missing library or name. Got: ${JSON.stringify(qs)}`
     };
   }
 
   try {
+    // Dynamically import the correct react-icons library
     const iconLib = await import(`react-icons/${library}`);
     const IconComponent = iconLib[name];
 
@@ -26,21 +32,31 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const size = parseInt(event.queryStringParameters?.size || '64');
-    const color = event.queryStringParameters?.color || '#000000';
-    const decodedColor = decodeURIComponent(color);
-
-    // Step 1: Render SVG
+    // Render icon to SVG string
     const svgString = renderToStaticMarkup(
-      createElement(IconComponent, { size, color: decodedColor })
+      createElement(IconComponent, { size, color })
     );
 
+    // Ensure proper SVG with XML namespace for standalone use
     const fullSvg = svgString.replace(
       '<svg',
       `<svg xmlns="http://www.w3.org/2000/svg"`
     );
 
-    // Step 2: Convert SVG buffer → PNG buffer via sharp
+    // Return SVG
+    if (format === 'svg') {
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=31536000'
+        },
+        body: fullSvg
+      };
+    }
+
+    // Return PNG
     const pngBuffer = await sharp(Buffer.from(fullSvg))
       .resize(size, size)
       .png()
@@ -54,10 +70,14 @@ export const handler: Handler = async (event) => {
         'Cache-Control': 'public, max-age=31536000'
       },
       body: pngBuffer.toString('base64'),
-      isBase64Encoded: true  // required for binary responses in Netlify
+      isBase64Encoded: true
     };
 
   } catch (err: any) {
-    return { statusCode: 500, body: `Error: ${err.message}` };
+    console.error('Unified Icon Error:', err);
+    return {
+      statusCode: 500,
+      body: `Error: ${err.message}`
+    };
   }
 };
