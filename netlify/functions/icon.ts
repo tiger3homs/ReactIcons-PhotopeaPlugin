@@ -2,6 +2,9 @@ import { Handler } from '@netlify/functions';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import sharp from 'sharp';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export const handler: Handler = async (event) => {
   const qs = event.queryStringParameters || {};
@@ -34,8 +37,8 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    // Dynamically import the correct react-icons library
-    const iconLib = await import(`react-icons/${library}`);
+    // Dynamically load the correct react-icons library using require
+    const iconLib = require(`react-icons/${library}`);
     const IconComponent = iconLib[name];
 
     if (!IconComponent) {

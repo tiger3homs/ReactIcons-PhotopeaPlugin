@@ -3,6 +3,11 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[functions]
+  node_bundle = true
+  external_node_modules = ["sharp", "react-icons"]
+  included_node_modules = ["react-icons", "sharp"]
+
 [[redirects]]
   from = "/icons/*"
   to = "/.netlify/functions/icon/:splat"
