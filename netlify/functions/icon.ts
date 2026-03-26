@@ -2,10 +2,6 @@ import { Handler } from '@netlify/functions';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import sharp from 'sharp';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-
 export const handler: Handler = async (event) => {
   const qs = event.queryStringParameters || {};
 
@@ -37,8 +33,17 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    // Dynamically load the correct react-icons library using require
-    const iconLib = require(`react-icons/${library}`);
+    // Dynamically import the correct react-icons library
+    // We use a dynamic import which should be handled correctly by Node.js at runtime
+    // since we've marked react-icons as an external dependency in netlify.toml
+    let iconLib;
+    try {
+      iconLib = await import(`react-icons/${library}/index.js`);
+    } catch (e) {
+      // Fallback for environments where the direct import is preferred
+      iconLib = await import(`react-icons/${library}`);
+    }
+    
     const IconComponent = iconLib[name];
 
     if (!IconComponent) {
