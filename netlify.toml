@@ -5,6 +5,8 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[functions.icon]
   external_node_modules = ["sharp", "react-icons"]
   included_node_modules = ["react-icons", "sharp"]
 
