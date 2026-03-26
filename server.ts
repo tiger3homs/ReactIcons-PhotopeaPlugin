@@ -48,22 +48,13 @@ async function startServer() {
     res.json({ message: "Hello from local mock Netlify Function!" });
   });
 
-  // Mock unified icon function
+  // Mock unified icon function with wildcard redirect behavior
   app.get("/icons/:library/:name", async (req, res) => {
     const { library, name } = req.params;
-    const isPng = name.endsWith('.png');
-    const isSvg = name.endsWith('.svg');
-    const iconName = name.replace('.png', '').replace('.svg', '');
-    const format = isPng ? 'png' : 'svg';
 
     const event = {
-      path: `/.netlify/functions/icon`,
-      queryStringParameters: {
-        ...req.query,
-        library,
-        name: iconName,
-        format,
-      },
+      path: `/.netlify/functions/icon/${library}/${name}`,
+      queryStringParameters: req.query,
       httpMethod: "GET",
     };
 

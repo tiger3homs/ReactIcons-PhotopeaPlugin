@@ -5,18 +5,31 @@ import sharp from 'sharp';
 
 export const handler: Handler = async (event) => {
   const qs = event.queryStringParameters || {};
-  const library = qs.library;
-  const name = qs.name;
+
+  // event.path looks like:
+  // /.netlify/functions/icon/fa6/FaSquarePhone.svg
+  // Split it and extract library + name from the path itself
+  const pathParts = event.path.split('/').filter(Boolean);
+  // pathParts might be: ['.netlify', 'functions', 'icon', 'fa6', 'FaSquarePhone.svg']
+  // OR if redirected from /icons/fa6/FaSquarePhone.svg:
+  // ['.netlify', 'functions', 'icon', 'fa6', 'FaSquarePhone.svg']
+  
+  // Find the index of 'icon' in the path to be more robust
+  const iconIndex = pathParts.indexOf('icon');
+  const library = pathParts[iconIndex + 1];
+  const rawName = pathParts[iconIndex + 2] || '';
+  const name = rawName.replace(/\.(svg|png)$/, '');
+  const format = rawName.endsWith('.png') ? 'png' : 'svg';
+
   const size = parseInt(qs.size || '64');
   const color = decodeURIComponent(qs.color || '%23000000');
-  const format = (qs.format || 'svg').toLowerCase(); // "svg" or "png"
 
-  console.log('Unified Icon Request:', { library, name, size, color, format });
+  console.log('Parsed Path:', { path: event.path, pathParts, library, name, format, size, color });
 
   if (!library || !name) {
     return {
       statusCode: 400,
-      body: `Missing library or name. Got: ${JSON.stringify(qs)}`
+      body: `Could not parse path. event.path was: ${event.path}. Parsed as: ${JSON.stringify({ library, name, format })}`
     };
   }
 

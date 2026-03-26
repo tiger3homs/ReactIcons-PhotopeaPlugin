@@ -4,18 +4,10 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/icons/:library/:name.svg"
-  to = "/.netlify/functions/icon?library=:library&name=:name&format=svg&size=:size&color=:color"
+  from = "/icons/*"
+  to = "/.netlify/functions/icon/:splat"
   status = 200
   force = true
-  query = {size = ":size", color = ":color"}
-
-[[redirects]]
-  from = "/icons/:library/:name.png"
-  to = "/.netlify/functions/icon?library=:library&name=:name&format=png&size=:size&color=:color"
-  status = 200
-  force = true
-  query = {size = ":size", color = ":color"}
 
 [[redirects]]
   from = "/plugin.json"
