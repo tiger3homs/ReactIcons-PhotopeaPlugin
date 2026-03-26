@@ -3,9 +3,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import sharp from 'sharp';
 import path from 'path';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
 
 export const handler: Handler = async (event) => {
   const qs = event.queryStringParameters || {};
@@ -35,7 +32,6 @@ export const handler: Handler = async (event) => {
 
   try {
     // Use direct file path — avoids ESM export errors with react-icons
-    // We use path.join with process.cwd() to find node_modules
     const iconLibPath = path.join(
       process.cwd(),
       'node_modules',
@@ -44,7 +40,18 @@ export const handler: Handler = async (event) => {
       'index.js'
     );
 
-    const iconLib = require(iconLibPath);
+    // Try dynamic import first, then fallback to require
+    let iconLib;
+    try {
+      // Use file URL for absolute path import in ESM
+      iconLib = await import(`file://${iconLibPath}`);
+    } catch (e) {
+      // Fallback to dynamic require for CJS environments
+      // We use eval('require') to bypass esbuild bundling
+      const dynamicRequire = eval('require');
+      iconLib = dynamicRequire(iconLibPath);
+    }
+
     const IconComponent = iconLib[name];
 
     if (!IconComponent) {

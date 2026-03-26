@@ -10,9 +10,10 @@ interface IconGridProps {
   isFavorite: (id: string) => boolean;
   onToggleFavorite: (id: string) => void;
   isLoading?: boolean;
+  renderMode: 'svg' | 'png';
 }
 
-export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavorite, onToggleFavorite, isLoading }: IconGridProps) {
+export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavorite, onToggleFavorite, isLoading, renderMode }: IconGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -53,6 +54,7 @@ export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavori
             e.stopPropagation();
             onToggleFavorite(icon.id);
           }}
+          renderMode={renderMode}
         />
       </div>
     );

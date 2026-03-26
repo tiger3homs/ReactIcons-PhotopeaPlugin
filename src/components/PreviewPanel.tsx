@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaArrowRight, FaCopy, FaDownload, FaHeart, FaRegHeart } from 'react-icons/fa6';
 import { IconMetadata } from '../lib/iconRegistry';
 import { iconToArrayBuffer, sendToPhotopea, copyToClipboard, downloadSvg } from '../lib/svgExport';
 import { toast } from 'sonner';
+import * as htmlToImage from 'html-to-image';
 
 interface PreviewPanelProps {
   icon: IconMetadata | null;
@@ -15,6 +16,7 @@ interface PreviewPanelProps {
 export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavorite }: PreviewPanelProps) {
   const [size, setSize] = useState(128);
   const [color, setColor] = useState('#6C63FF');
+  const iconRef = useRef<HTMLDivElement>(null);
 
   if (!icon) return null;
 
@@ -34,6 +36,38 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   const handleDownload = () => {
     downloadSvg(Icon, size, color, icon.name);
     toast.success('SVG downloaded!');
+  };
+
+  const handleDownloadPng = async () => {
+    if (!iconRef.current) return;
+    
+    try {
+      const dataUrl = await htmlToImage.toPng(iconRef.current, {
+        width: size,
+        height: size,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+        }
+      });
+      
+      const link = document.createElement('a');
+      link.download = `${icon.name}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('PNG downloaded!');
+    } catch (err) {
+      console.error('PNG Export Error:', err);
+      toast.error('Failed to generate PNG locally. Trying server...');
+      
+      // Fallback to server URL if client-side fails
+      const link = document.createElement('a');
+      link.href = pngUrl;
+      link.download = `${icon.name}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const baseUrl = window.location.origin;
@@ -73,7 +107,10 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                 backgroundImage: 'radial-gradient(circle, var(--text-secondary) 1px, transparent 1px)',
                 backgroundSize: '20px 20px'
               }} />
-              <div style={{ fontSize: `${Math.min(size, 200)}px`, color }}>
+              <div 
+                ref={iconRef}
+                style={{ fontSize: `${Math.min(size, 200)}px`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
                 <Icon />
               </div>
             </div>
@@ -137,9 +174,17 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                   className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all"
                 >
                   <FaDownload />
-                  <span>Download</span>
+                  <span>SVG</span>
                 </button>
               </div>
+
+              <button
+                onClick={handleDownloadPng}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all border border-[var(--border-color)]"
+              >
+                <FaDownload />
+                <span>Download PNG</span>
+              </button>
 
               <button
                 onClick={onToggleFavorite}

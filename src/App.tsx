@@ -19,6 +19,7 @@ export default function App() {
   });
   const [selectedIcon, setSelectedIcon] = useState<IconMetadata | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [renderMode, setRenderMode] = useState<'svg' | 'png'>('svg');
   
   const { 
     searchTerm, 
@@ -97,26 +98,29 @@ export default function App() {
         favoritesCount={favorites.length}
       />
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <Toolbar 
-          isDark={isDark} 
-          onToggleTheme={() => setIsDark(!isDark)} 
-          onShowShortcuts={() => setShowShortcuts(true)}
-        />
-        <SearchBar 
-          value={searchTerm} 
-          onChange={setSearchTerm} 
-          resultCount={displayIcons.length}
-        />
-        <IconGrid 
-          icons={displayIcons}
-          selectedIconId={selectedIcon?.id || null}
-          onSelectIcon={setSelectedIcon}
-          isFavorite={isFavorite}
-          onToggleFavorite={toggleFavorite}
-          isLoading={isLoading}
-        />
-      </main>
+        <main className="flex-1 flex flex-col min-w-0">
+          <Toolbar 
+            isDark={isDark} 
+            onToggleTheme={() => setIsDark(!isDark)} 
+            onShowShortcuts={() => setShowShortcuts(true)}
+            renderMode={renderMode}
+            onToggleRenderMode={() => setRenderMode(prev => prev === 'svg' ? 'png' : 'svg')}
+          />
+          <SearchBar 
+            value={searchTerm} 
+            onChange={setSearchTerm} 
+            resultCount={displayIcons.length}
+          />
+          <IconGrid 
+            icons={displayIcons}
+            selectedIconId={selectedIcon?.id || null}
+            onSelectIcon={setSelectedIcon}
+            isFavorite={isFavorite}
+            onToggleFavorite={toggleFavorite}
+            isLoading={isLoading}
+            renderMode={renderMode}
+          />
+        </main>
 
       <PreviewPanel 
         icon={selectedIcon} 

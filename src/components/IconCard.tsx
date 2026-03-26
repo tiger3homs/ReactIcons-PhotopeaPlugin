@@ -16,9 +16,10 @@ interface IconCardProps {
   isFavorite: boolean;
   onSelect: () => void;
   onToggleFavorite: (e: React.MouseEvent) => void;
+  renderMode: 'svg' | 'png';
 }
 
-export default function IconCard({ icon, isSelected, isFavorite, onSelect, onToggleFavorite }: IconCardProps) {
+export default function IconCard({ icon, isSelected, isFavorite, onSelect, onToggleFavorite, renderMode }: IconCardProps) {
   const Icon = icon.component;
   const baseUrl = window.location.origin;
   
@@ -55,8 +56,18 @@ export default function IconCard({ icon, isSelected, isFavorite, onSelect, onTog
             : "bg-[var(--bg-primary)] border-[var(--border-color)] hover:border-accent/50"
         )}
       >
-        <div className="text-3xl text-[var(--text-primary)] mb-2 group-hover:text-accent transition-colors">
-          <Icon />
+        <div className="text-3xl text-[var(--text-primary)] mb-2 group-hover:text-accent transition-colors flex items-center justify-center w-10 h-10">
+          {renderMode === 'svg' ? (
+            <Icon />
+          ) : (
+            <img 
+              src={pngUrl} 
+              alt={icon.name} 
+              className="w-full h-full object-contain"
+              referrerPolicy="no-referrer"
+              loading="lazy"
+            />
+          )}
         </div>
         <span className="text-[10px] text-[var(--text-secondary)] text-center truncate w-full px-1">
           {icon.name}
