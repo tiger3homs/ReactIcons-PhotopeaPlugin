@@ -22,6 +22,10 @@ interface IconCardProps {
 export default function IconCard({ icon, isSelected, isFavorite, onSelect, onToggleFavorite, renderMode }: IconCardProps) {
   const Icon = icon.component;
   const baseUrl = window.location.origin;
+
+  if (!Icon && renderMode === 'svg') {
+    return null;
+  }
   
   // Use direct function URLs as fallback if redirects fail, but clean URLs are preferred
   // For the grid, we use a default size of 64

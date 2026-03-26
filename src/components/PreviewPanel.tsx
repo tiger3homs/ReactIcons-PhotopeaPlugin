@@ -70,6 +70,30 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
     }
   };
 
+  const handleCopyPng = async () => {
+    if (!iconRef.current) return;
+    
+    try {
+      const blob = await htmlToImage.toBlob(iconRef.current, {
+        width: size,
+        height: size,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+        }
+      });
+      
+      if (!blob) throw new Error('Failed to generate PNG blob');
+      
+      const item = new ClipboardItem({ 'image/png': blob });
+      await navigator.clipboard.write([item]);
+      toast.success('PNG copied to clipboard!');
+    } catch (err) {
+      console.error('PNG Copy Error:', err);
+      toast.error('Failed to copy PNG to clipboard.');
+    }
+  };
+
   const baseUrl = window.location.origin;
   // Use direct function URLs as fallback if redirects fail, but clean URLs are preferred
   const svgUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.svg?size=${size}&color=${encodeURIComponent(color)}`;
@@ -111,7 +135,7 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                 ref={iconRef}
                 style={{ fontSize: `${Math.min(size, 200)}px`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Icon />
+                {Icon ? <Icon /> : <span className="text-xs text-red-500">Icon failed to load</span>}
               </div>
             </div>
 
@@ -170,21 +194,30 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                   <span>Copy SVG</span>
                 </button>
                 <button
+                  onClick={handleCopyPng}
+                  className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all"
+                >
+                  <FaCopy />
+                  <span>Copy PNG</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
                   onClick={handleDownload}
                   className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all"
                 >
                   <FaDownload />
                   <span>SVG</span>
                 </button>
+                <button
+                  onClick={handleDownloadPng}
+                  className="flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all border border-[var(--border-color)]"
+                >
+                  <FaDownload />
+                  <span>PNG</span>
+                </button>
               </div>
-
-              <button
-                onClick={handleDownloadPng}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-sm font-medium hover:bg-[var(--border-color)] transition-all border border-[var(--border-color)]"
-              >
-                <FaDownload />
-                <span>Download PNG</span>
-              </button>
 
               <button
                 onClick={onToggleFavorite}

@@ -4,7 +4,9 @@ export const handler: Handler = async (event, context) => {
   // Netlify injects the deploy URL automatically as an environment variable
   // DEPLOY_URL is set per-deploy (includes branch deploys)
   // URL is the primary production URL
-  const baseUrl = process.env.DEPLOY_URL || process.env.URL || 'http://localhost:3000';
+  const host = event.headers?.host;
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
+  const baseUrl = (host ? `${protocol}://${host}` : null) || process.env.DEPLOY_URL || process.env.URL || 'http://localhost:3000';
 
   const pluginConfig = {
     name: "IconForge",

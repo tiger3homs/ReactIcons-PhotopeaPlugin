@@ -15,32 +15,44 @@ async function startServer() {
 
   // Mock Netlify Functions for local development
   app.get("/plugin.json", async (req, res) => {
-    // @ts-ignore
-    const event = {
-      queryStringParameters: req.query,
-      httpMethod: "GET",
-    };
-    // @ts-ignore
-    const result = await pluginConfigHandler(event, {});
-    if (result && typeof result === 'object') {
-      res.status(result.statusCode || 200).set(result.headers || {}).send(result.body);
-    } else {
-      res.status(500).send("Internal Server Error");
+    try {
+      // @ts-ignore
+      const event = {
+        queryStringParameters: req.query,
+        httpMethod: "GET",
+        headers: req.headers,
+      };
+      // @ts-ignore
+      const result = await pluginConfigHandler(event, {});
+      if (result && typeof result === 'object') {
+        res.status(result.statusCode || 200).set(result.headers || {}).send(result.body);
+      } else {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.error("Plugin config error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
   app.get("/api/search", async (req, res) => {
-    // @ts-ignore
-    const event = {
-      queryStringParameters: req.query,
-      httpMethod: "GET",
-    };
-    // @ts-ignore
-    const result = await searchHandler(event, {});
-    if (result && typeof result === 'object') {
-      res.status(result.statusCode || 200).set(result.headers || {}).send(result.body);
-    } else {
-      res.status(500).send("Internal Server Error");
+    try {
+      // @ts-ignore
+      const event = {
+        queryStringParameters: req.query,
+        httpMethod: "GET",
+        headers: req.headers,
+      };
+      // @ts-ignore
+      const result = await searchHandler(event, {});
+      if (result && typeof result === 'object') {
+        res.status(result.statusCode || 200).set(result.headers || {}).send(result.body);
+      } else {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -50,28 +62,34 @@ async function startServer() {
 
   // Mock unified icon function with wildcard redirect behavior
   app.get("/icons/:library/:name", async (req, res) => {
-    const { library, name } = req.params;
+    try {
+      const { library, name } = req.params;
 
-    const event = {
-      path: `/icons/${library}/${name}`,
-      queryStringParameters: req.query,
-      httpMethod: "GET",
-    };
+      const event = {
+        path: `/icons/${library}/${name}`,
+        queryStringParameters: req.query,
+        httpMethod: "GET",
+        headers: req.headers,
+      };
 
-    // @ts-ignore
-    const result = await iconHandler(event, {});
+      // @ts-ignore
+      const result = await iconHandler(event, {});
 
-    if (result && typeof result === 'object') {
-      const headers = result.headers || {};
-      res.status(result.statusCode || 200).set(headers);
-      
-      if (result.isBase64Encoded) {
-        res.send(Buffer.from(result.body || '', 'base64'));
+      if (result && typeof result === 'object') {
+        const headers = result.headers || {};
+        res.status(result.statusCode || 200).set(headers);
+        
+        if (result.isBase64Encoded) {
+          res.send(Buffer.from(result.body || '', 'base64'));
+        } else {
+          res.send(result.body);
+        }
       } else {
-        res.send(result.body);
+        res.status(500).json({ error: "Internal Server Error" });
       }
-    } else {
-      res.status(500).send("Internal Server Error");
+    } catch (error) {
+      console.error("Icon error:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
