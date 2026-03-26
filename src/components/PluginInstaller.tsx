@@ -45,10 +45,10 @@ export default function PluginInstaller() {
       {/* Step 1: Copy the URL */}
       <div className="space-y-1">
         <p className="text-xs text-[var(--text-secondary)]">
-          Step 1 — Go to <strong>Window → Plugins → Add Plugin</strong> in Photopea
+          Step 1 — Go to <strong>Window → Plugins → Add Plugin</strong>
         </p>
         <p className="text-xs text-[var(--text-secondary)]">
-          Step 2 — Paste this URL directly, or copy the full JSON below
+          Step 2 — Paste the URL below into the input field
         </p>
       </div>
 

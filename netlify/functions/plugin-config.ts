@@ -7,24 +7,19 @@ export const handler: Handler = async (event, context) => {
   const baseUrl = process.env.DEPLOY_URL || process.env.URL || 'http://localhost:3000';
 
   const pluginConfig = {
-    environment: {
-      plugins: [
-        {
-          name: "IconForge",
-          url: baseUrl,
-          icon: `${baseUrl}/logo-32.svg`
-        }
-      ]
-    }
+    name: "IconForge",
+    url: baseUrl,
+    icon: `${baseUrl}/logo-32.svg`
   };
 
   return {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      // Allow Photopea to fetch this config cross-origin
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Max-Age": "86400"
     },
     body: JSON.stringify(pluginConfig, null, 2)
   };
