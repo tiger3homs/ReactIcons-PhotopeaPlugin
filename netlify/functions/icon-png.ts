@@ -4,21 +4,26 @@ import { createElement } from 'react';
 import sharp from 'sharp';
 
 export const handler: Handler = async (event) => {
-  const path = event.path.replace('/.netlify/functions/icon-png/', '');
-  const parts = path.split('/');
-  const library = parts[0];
-  const iconName = parts[1];
+  const { library, name, size, color } = event.queryStringParameters || {};
 
-  if (!library || !iconName) {
-    return { statusCode: 400, body: 'Missing library or icon name' };
+  console.log('Params received:', { library, name, size, color });
+
+  if (!library || !name) {
+    return {
+      statusCode: 400,
+      body: `Missing params. Received: ${JSON.stringify(event.queryStringParameters)}`
+    };
   }
 
   try {
     const iconLib = await import(`react-icons/${library}`);
-    const IconComponent = iconLib[iconName];
+    const IconComponent = iconLib[name];
 
     if (!IconComponent) {
-      return { statusCode: 404, body: `Icon "${iconName}" not found in "${library}"` };
+      return {
+        statusCode: 404,
+        body: `Icon "${name}" not found in "react-icons/${library}"`
+      };
     }
 
     const size = parseInt(event.queryStringParameters?.size || '64');

@@ -57,8 +57,12 @@ async function startServer() {
     const iconName = name.replace('.png', '').replace('.svg', '');
 
     const event = {
-      path: `/.netlify/functions/icon-${isPng ? 'png' : 'svg'}/${library}/${iconName}`,
-      queryStringParameters: req.query,
+      path: `/.netlify/functions/icon-${isPng ? 'png' : 'svg'}`,
+      queryStringParameters: {
+        ...req.query,
+        library,
+        name: iconName,
+      },
       httpMethod: "GET",
     };
 

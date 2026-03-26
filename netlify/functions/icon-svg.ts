@@ -3,26 +3,28 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 
 export const handler: Handler = async (event) => {
-  // Extract library and icon name from path
-  // Path will be: /.netlify/functions/icon-svg/fa6/FaBolt
-  const path = event.path.replace('/.netlify/functions/icon-svg/', '');
-  const parts = path.split('/');
-  const library = parts[0];  // e.g. "fa6"
-  const iconName = parts[1]; // e.g. "FaBolt"
+  // Read from query params — set by netlify.toml redirect
+  const { library, name, size, color } = event.queryStringParameters || {};
 
-  if (!library || !iconName) {
-    return { statusCode: 400, body: 'Missing library or icon name' };
+  console.log('Params received:', { library, name, size, color });
+
+  if (!library || !name) {
+    return {
+      statusCode: 400,
+      body: `Missing params. Received: ${JSON.stringify(event.queryStringParameters)}`
+    };
   }
 
   try {
     // Dynamically import the correct react-icons library
-    // Note: In Netlify functions, we might need to be careful with dynamic imports
-    // But since we are using esbuild (default for TS functions), it should work if configured
     const iconLib = await import(`react-icons/${library}`);
-    const IconComponent = iconLib[iconName];
+    const IconComponent = iconLib[name];
 
     if (!IconComponent) {
-      return { statusCode: 404, body: `Icon "${iconName}" not found in library "${library}"` };
+      return {
+        statusCode: 404,
+        body: `Icon "${name}" not found in "react-icons/${library}"`
+      };
     }
 
     // Get size and color from query params with defaults

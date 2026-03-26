@@ -5,13 +5,13 @@
 
 [[redirects]]
   from = "/icons/:library/:name.svg"
-  to = "/.netlify/functions/icon-svg/:library/:name"
+  to = "/.netlify/functions/icon-svg?library=:library&name=:name"
   status = 200
   force = true
 
 [[redirects]]
   from = "/icons/:library/:name.png"
-  to = "/.netlify/functions/icon-png/:library/:name"
+  to = "/.netlify/functions/icon-png?library=:library&name=:name"
   status = 200
   force = true
 

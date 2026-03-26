@@ -37,6 +37,7 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   };
 
   const baseUrl = window.location.origin;
+  // Use direct function URLs as fallback if redirects fail, but clean URLs are preferred
   const svgUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.svg?size=${size}&color=${encodeURIComponent(color)}`;
   const pngUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.png?size=${size}&color=${encodeURIComponent(color)}`;
 

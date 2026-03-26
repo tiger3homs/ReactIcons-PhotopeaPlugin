@@ -21,8 +21,11 @@ interface IconCardProps {
 export default function IconCard({ icon, isSelected, isFavorite, onSelect, onToggleFavorite }: IconCardProps) {
   const Icon = icon.component;
   const baseUrl = window.location.origin;
-  const svgUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.svg`;
-  const pngUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.png`;
+  
+  // Use direct function URLs as fallback if redirects fail, but clean URLs are preferred
+  // For the grid, we use a default size of 64
+  const svgUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.svg?size=64&color=%23000000`;
+  const pngUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.png?size=64&color=%23000000`;
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', svgUrl);
