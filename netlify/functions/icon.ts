@@ -2,22 +2,23 @@ import { Handler } from '@netlify/functions';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import sharp from 'sharp';
+import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 export const handler: Handler = async (event) => {
   const qs = event.queryStringParameters || {};
 
   // event.path looks like:
-  // /.netlify/functions/icon/fa6/FaSquarePhone.svg
+  // /icons/fa6/FaSquarePhone.svg (due to splat redirect)
   // Split it and extract library + name from the path itself
   const pathParts = event.path.split('/').filter(Boolean);
-  // pathParts might be: ['.netlify', 'functions', 'icon', 'fa6', 'FaSquarePhone.svg']
-  // OR if redirected from /icons/fa6/FaSquarePhone.svg:
-  // ['.netlify', 'functions', 'icon', 'fa6', 'FaSquarePhone.svg']
-  
-  // Find the index of 'icon' in the path to be more robust
-  const iconIndex = pathParts.indexOf('icon');
-  const library = pathParts[iconIndex + 1];
-  const rawName = pathParts[iconIndex + 2] || '';
-  const name = rawName.replace(/\.(svg|png)$/, '');
+  // pathParts = ['icons', 'fa6', 'FaSquarePhone.svg']
+
+  const library = pathParts[1];                         // 'fa6'
+  const rawName = pathParts[2] || '';                   // 'FaSquarePhone.svg'
+  const name = rawName.replace(/\.(svg|png)$/, '');     // 'FaSquarePhone'
   const format = rawName.endsWith('.png') ? 'png' : 'svg';
 
   const size = parseInt(qs.size || '64');
@@ -33,17 +34,17 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    // Dynamically import the correct react-icons library
-    // We use a dynamic import which should be handled correctly by Node.js at runtime
-    // since we've marked react-icons as an external dependency in netlify.toml
-    let iconLib;
-    try {
-      iconLib = await import(`react-icons/${library}/index.js`);
-    } catch (e) {
-      // Fallback for environments where the direct import is preferred
-      iconLib = await import(`react-icons/${library}`);
-    }
-    
+    // Use direct file path — avoids ESM export errors with react-icons
+    // We use path.join with process.cwd() to find node_modules
+    const iconLibPath = path.join(
+      process.cwd(),
+      'node_modules',
+      'react-icons',
+      library,
+      'index.js'
+    );
+
+    const iconLib = require(iconLibPath);
     const IconComponent = iconLib[name];
 
     if (!IconComponent) {

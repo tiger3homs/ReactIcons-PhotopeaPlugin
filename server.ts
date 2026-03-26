@@ -53,7 +53,7 @@ async function startServer() {
     const { library, name } = req.params;
 
     const event = {
-      path: `/.netlify/functions/icon/${library}/${name}`,
+      path: `/icons/${library}/${name}`,
       queryStringParameters: req.query,
       httpMethod: "GET",
     };
