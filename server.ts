@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import { handler as searchHandler } from "./netlify/functions/search.js";
+import { handler as pluginConfigHandler } from "./netlify/functions/plugin-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,21 @@ async function startServer() {
   const PORT = 3000;
 
   // Mock Netlify Functions for local development
+  app.get("/plugin.json", async (req, res) => {
+    // @ts-ignore
+    const event = {
+      queryStringParameters: req.query,
+      httpMethod: "GET",
+    };
+    // @ts-ignore
+    const result = await pluginConfigHandler(event, {});
+    if (result && typeof result === 'object') {
+      res.status(result.statusCode || 200).set(result.headers || {}).send(result.body);
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  });
+
   app.get("/api/search", async (req, res) => {
     // @ts-ignore
     const event = {

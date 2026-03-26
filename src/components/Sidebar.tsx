@@ -3,6 +3,7 @@ import { libraries } from '../lib/iconRegistry';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { FaHammer, FaHeart } from 'react-icons/fa6';
+import PluginInstaller from './PluginInstaller';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,7 +17,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeLibrary, onSelectLibrary, favoritesCount }: SidebarProps) {
   return (
-    <aside className="w-60 h-full bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col">
+    <aside className="w-64 h-full bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col">
       <div className="p-6 flex items-center gap-3">
         <FaHammer className="text-accent text-2xl" />
         <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">IconForge</h1>
@@ -88,7 +89,8 @@ export default function Sidebar({ activeLibrary, onSelectLibrary, favoritesCount
         ))}
       </nav>
 
-      <div className="p-4 border-t border-[var(--border-color)]">
+      <div className="p-4 space-y-4 border-t border-[var(--border-color)]">
+        <PluginInstaller />
         <p className="text-[10px] text-[var(--text-secondary)] text-center opacity-50">
           v1.0.0 • Photopea Plugin
         </p>

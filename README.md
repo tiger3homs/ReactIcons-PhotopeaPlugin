@@ -25,11 +25,12 @@ Shape your design, one icon at a time. IconForge is a production-ready React web
 To use IconForge as a plugin in Photopea:
 
 1.  Open [Photopea](https://www.photopea.com).
-2.  Go to **Window** > **Plugins**.
-3.  Click on **Add Plugin** (or the "+" icon).
-4.  Enter the URL of your deployed IconForge app:
-    `https://ais-pre-r4rizp5r5z3lv64mfvfajy-36060060809.europe-west1.run.app`
-5.  IconForge will now appear in your plugins list.
+2.  Go to **Window** > **Plugins** > **Add Plugin**.
+3.  Enter the URL of your deployed IconForge app:
+    `https://reacticons-photopeaplugin.netlify.app/plugin.json`
+4.  IconForge will now appear in your plugins list.
+
+Alternatively, you can open the app directly at [https://reacticons-photopeaplugin.netlify.app/](https://reacticons-photopeaplugin.netlify.app/) and use the **Install in Photopea** panel in the sidebar to copy the URL.
 
 ## Development
 
