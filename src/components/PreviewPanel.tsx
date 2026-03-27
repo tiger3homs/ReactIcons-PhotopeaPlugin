@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaArrowRight, FaCopy, FaDownload, FaHeart, FaRegHeart } from 'react-icons/fa6';
 import { IconMetadata } from '../lib/iconRegistry';
-import { sendToPhotopea, copyToClipboard, downloadSvg } from '../lib/svgExport';
+import { insertIntoPhotopea, copySvg, copyPng } from '../lib/clipboard';
+import { downloadSvg } from '../lib/svgExport';
 import { toast } from 'sonner';
 import * as htmlToImage from 'html-to-image';
 
@@ -23,14 +25,17 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   const Icon = icon.component;
 
   const handleInsert = () => {
-    sendToPhotopea(Icon, size, color);
+    const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + 
+      renderToStaticMarkup(<Icon size={size} color={color} />).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    insertIntoPhotopea(fullSvg);
     toast.success('Inserted into Photopea!');
   };
 
   const handleCopy = async () => {
     try {
-      window.focus();
-      await copyToClipboard(Icon, size, color);
+      const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + 
+        renderToStaticMarkup(<Icon size={size} color={color} />).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+      copySvg(fullSvg);
       toast.success('SVG copied to clipboard!');
     } catch (err) {
       console.error('SVG Copy Error:', err);
@@ -77,37 +82,12 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   };
 
   const handleCopyPng = async () => {
-    if (!iconRef.current) return;
-    
     try {
-      // Ensure the window has focus before attempting clipboard operations
-      window.focus();
-
-      const blob = await htmlToImage.toBlob(iconRef.current, {
-        width: size,
-        height: size,
-        style: {
-          transform: 'none',
-          margin: '0',
-          padding: '0',
-        }
-      });
-      
-      if (!blob) throw new Error('Failed to generate PNG blob');
-      
-      // Re-focus just in case the processing caused a blur
-      window.focus();
-
-      const item = new ClipboardItem({ 'image/png': blob });
-      await navigator.clipboard.write([item]);
+      copyPng(pngUrl);
       toast.success('PNG copied to clipboard!');
     } catch (err) {
       console.error('PNG Copy Error:', err);
-      if (err instanceof Error && err.name === 'NotAllowedError') {
-        toast.error('Clipboard access denied or document not focused.');
-      } else {
-        toast.error('Failed to copy PNG to clipboard.');
-      }
+      toast.error('Failed to copy PNG to clipboard.');
     }
   };
 

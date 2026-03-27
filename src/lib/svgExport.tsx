@@ -21,39 +21,6 @@ export function iconToArrayBuffer(IconComponent: any, size: number, color: strin
 }
 
 /**
- * Sends the icon data to Photopea.
- * Supports both native Photopea plugin context and Tampermonkey script context.
- */
-export function sendToPhotopea(IconComponent: any, size: number, color: string) {
-  const fullSvg = getIconSvg(IconComponent, size, color);
-  const buffer = new TextEncoder().encode(fullSvg).buffer;
-
-  if (window.parent !== window) {
-    // 1. Send as object for Tampermonkey script
-    window.parent.postMessage({
-      type: 'INSERT_ICON',
-      svg: fullSvg
-    }, '*');
-
-    // 2. Send as raw ArrayBuffer for native Photopea plugin
-    window.parent.postMessage(buffer, "*");
-  } else {
-    // Standalone mode (e.g. testing in a tab)
-    const encoded = new TextEncoder().encode(fullSvg);
-    window.postMessage(encoded.buffer, '*');
-  }
-}
-
-/**
- * Copies the raw SVG string to the clipboard.
- */
-export async function copyToClipboard(IconComponent: any, size: number, color: string) {
-  const svg = renderToStaticMarkup(<IconComponent size={size} color={color} />);
-  const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + svg;
-  await navigator.clipboard.writeText(fullSvg);
-}
-
-/**
  * Triggers a file download for the SVG.
  */
 export function downloadSvg(IconComponent: any, size: number, color: string, name: string) {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import Sidebar from './components/Sidebar';
 import SearchBar from './components/SearchBar';
 import IconGrid from './components/IconGrid';
@@ -7,8 +8,8 @@ import Toolbar from './components/Toolbar';
 import { useIconSearch } from './hooks/useIconSearch';
 import { useFavorites } from './hooks/useFavorites';
 import { IconMetadata } from './lib/iconRegistry';
+import { insertIntoPhotopea } from './lib/clipboard';
 import { Toaster, toast } from 'sonner';
-import { sendToPhotopea } from './lib/svgExport';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaKeyboard } from 'react-icons/fa6';
 
@@ -72,7 +73,10 @@ export default function App() {
 
       // Enter: Insert into Photopea
       if (e.key === 'Enter' && selectedIcon) {
-        sendToPhotopea(selectedIcon.component, 128, '#6C63FF');
+        const Icon = selectedIcon.component;
+        const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + 
+          renderToStaticMarkup(<Icon size={128} color="#6C63FF" />).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        insertIntoPhotopea(fullSvg);
         toast.success('Inserted into Photopea!');
       }
 
