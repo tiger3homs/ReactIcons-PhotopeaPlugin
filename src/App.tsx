@@ -8,7 +8,6 @@ import Toolbar from './components/Toolbar';
 import { useIconSearch } from './hooks/useIconSearch';
 import { useFavorites } from './hooks/useFavorites';
 import { IconMetadata } from './lib/iconRegistry';
-import { insertIntoPhotopea } from './lib/clipboard';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaKeyboard } from 'react-icons/fa6';
@@ -72,6 +71,7 @@ export default function App() {
       }
 
       // Enter: Insert into Photopea
+      /*
       if (e.key === 'Enter' && selectedIcon) {
         const Icon = selectedIcon.component;
         const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + 
@@ -79,6 +79,7 @@ export default function App() {
         insertIntoPhotopea(fullSvg);
         toast.success('Inserted into Photopea!');
       }
+      */
 
       // F: Toggle favorite
       if (e.key.toLowerCase() === 'f' && selectedIcon) {

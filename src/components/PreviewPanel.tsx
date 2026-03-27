@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaArrowRight, FaCopy, FaDownload, FaHeart, FaRegHeart } from 'react-icons/fa6';
 import { IconMetadata } from '../lib/iconRegistry';
-import { insertIntoPhotopea, copySvg, copyPng, isIframe } from '../lib/clipboard';
+import { insertPngIntoPhotopea, copySvg, copyPng, isIframe } from '../lib/clipboard';
 import { downloadSvg } from '../lib/svgExport';
 import { toast } from 'sonner';
 import * as htmlToImage from 'html-to-image';
@@ -24,11 +24,26 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
 
   const Icon = icon.component;
 
-  const handleInsert = () => {
-    const fullSvg = `<?xml version="1.0" encoding="UTF-8"?>\n` + 
-      renderToStaticMarkup(<Icon size={size} color={color} />).replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
-    insertIntoPhotopea(fullSvg);
-    toast.success('Inserted into Photopea!');
+  const handleInsert = async () => {
+    if (!iconRef.current) return;
+    
+    try {
+      const dataUrl = await htmlToImage.toPng(iconRef.current, {
+        width: size,
+        height: size,
+        style: {
+          transform: 'none',
+          margin: '0',
+          padding: '0',
+        }
+      });
+      
+      insertPngIntoPhotopea(dataUrl);
+      toast.success('Inserted into Photopea as PNG!');
+    } catch (err) {
+      console.error('PNG Insert Error:', err);
+      toast.error('Failed to insert PNG into Photopea.');
+    }
   };
 
   const handleCopy = async () => {

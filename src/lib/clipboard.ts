@@ -48,3 +48,16 @@ export function insertIntoPhotopea(svgString: string) {
   const encoded = new TextEncoder().encode(svgString);
   window.postMessage(encoded.buffer, '*');
 }
+
+// Insert PNG into Photopea
+export function insertPngIntoPhotopea(pngDataUrl: string) {
+  if (isIframe) {
+    // Send to Tampermonkey to handle insertion
+    window.parent.postMessage({
+      type: 'ICONFORGE_INSERT_PNG',
+      payload: pngDataUrl
+    }, '*');
+    return;
+  }
+  console.log('Insert PNG not supported in standalone mode');
+}
