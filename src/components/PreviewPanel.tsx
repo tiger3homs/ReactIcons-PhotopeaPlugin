@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaArrowRight, FaCopy, FaDownload, FaHeart, FaRegHeart } from 'react-icons/fa6';
 import { IconMetadata } from '../lib/iconRegistry';
-import { insertIntoPhotopea, copySvg, copyPng } from '../lib/clipboard';
+import { insertIntoPhotopea, copySvg, copyPng, isIframe } from '../lib/clipboard';
 import { downloadSvg } from '../lib/svgExport';
 import { toast } from 'sonner';
 import * as htmlToImage from 'html-to-image';
@@ -82,12 +82,43 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   };
 
   const handleCopyPng = async () => {
+    if (!iconRef.current) return;
+    
     try {
-      copyPng(pngUrl);
+      // Ensure the window has focus before attempting clipboard operations
+      window.focus();
+
+      const blob = await htmlToImage.toBlob(iconRef.current, {
+        width: size,
+        height: size,
+        style: {
+          transform: 'none',
+          margin: '0',
+          padding: '0',
+        }
+      });
+      
+      if (!blob) throw new Error('Failed to generate PNG blob');
+      
+      // Re-focus just in case the processing caused a blur
+      window.focus();
+
+      const item = new ClipboardItem({ 'image/png': blob });
+      await navigator.clipboard.write([item]);
       toast.success('PNG copied to clipboard!');
     } catch (err) {
       console.error('PNG Copy Error:', err);
-      toast.error('Failed to copy PNG to clipboard.');
+      // Fallback to iframe postMessage if direct clipboard write fails
+      if (isIframe) {
+        copyPng(pngUrl);
+        toast.success('PNG copied to clipboard!');
+      } else {
+        if (err instanceof Error && err.name === 'NotAllowedError') {
+          toast.error('Clipboard access denied or document not focused.');
+        } else {
+          toast.error('Failed to copy PNG to clipboard.');
+        }
+      }
     }
   };
 
