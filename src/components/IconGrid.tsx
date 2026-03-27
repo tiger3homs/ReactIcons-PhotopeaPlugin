@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
-import { List } from 'react-window';
+import React, { useMemo, useRef, useLayoutEffect, useEffect, useState } from 'react';
+import { FixedSizeGrid as Grid } from 'react-window';
 import { IconMetadata } from '../lib/iconRegistry';
 import IconCard from './IconCard';
 
@@ -13,98 +13,60 @@ interface IconGridProps {
   renderMode: 'svg' | 'png';
 }
 
-interface RowData {
-  validIcons: IconMetadata[];
-  columnCount: number;
-  selectedIconId: string | null;
-  isFavorite: (id: string) => boolean;
-  onSelectIcon: (icon: IconMetadata) => void;
-  onToggleFavorite: (id: string) => void;
-  renderMode: 'svg' | 'png';
-}
-
-const Row = ({ index, style, validIcons, columnCount, selectedIconId, isFavorite, onSelectIcon, onToggleFavorite, renderMode }: any) => {
-  const rowIcons = [];
-  for (let i = 0; i < columnCount; i++) {
-    const iconIndex = index * columnCount + i;
-    if (iconIndex < validIcons.length) {
-      rowIcons.push(validIcons[iconIndex]);
-    }
-  }
-
-  return (
-    <div style={style} className="flex px-4">
-      {rowIcons.map((icon) => (
-        <div key={icon.id} style={{ width: `${100 / columnCount}%`, padding: '8px' }}>
-          <IconCard
-            icon={icon}
-            isSelected={selectedIconId === icon.id}
-            isFavorite={isFavorite(icon.id)}
-            onSelect={() => onSelectIcon(icon)}
-            onToggleFavorite={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(icon.id);
-            }}
-            renderMode={renderMode}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
-
 export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavorite, onToggleFavorite, isLoading, renderMode }: IconGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const updateDimensions = () => {
       if (containerRef.current) {
+        const { offsetWidth, offsetHeight } = containerRef.current;
         setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
+          width: offsetWidth,
+          height: offsetHeight,
         });
       }
     };
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.contentRect) {
-          setDimensions({
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
-          });
-        }
-      }
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
     });
 
-    // Initial check
+    observer.observe(containerRef.current);
     updateDimensions();
-    
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
 
-  const validIcons = useMemo(() => icons.filter(icon => !!icon.component), [icons]);
-  
-  // Debug line
-  useEffect(() => {
-    console.log('IconGrid State:', {
-      totalIcons: icons.length,
-      validIcons: validIcons.length,
-      dimensions,
-      isLoading
-    });
-    if (validIcons.length > 0) {
-      console.log('First valid icon sample:', validIcons[0]);
-    }
-  }, [icons, validIcons, dimensions, isLoading]);
+    return () => observer.disconnect();
+  }, [isLoading, icons.length]);
 
   const columnCount = Math.max(1, Math.floor(dimensions.width / 120));
-  const rowCount = Math.ceil(validIcons.length / columnCount);
+  const rowCount = Math.ceil(icons.length / columnCount);
+  const columnWidth = dimensions.width > 0 ? dimensions.width / columnCount : 120;
   const rowHeight = 120;
+
+  const Cell = useMemo(() => ({ columnIndex, rowIndex, style }: any) => {
+    const index = rowIndex * columnCount + columnIndex;
+    const icon = icons[index];
+
+    if (!icon) return null;
+
+    return (
+      <div style={{ ...style, padding: '8px' }}>
+        <IconCard
+          icon={icon}
+          isSelected={selectedIconId === icon.id}
+          isFavorite={isFavorite(icon.id)}
+          onSelect={() => onSelectIcon(icon)}
+          onToggleFavorite={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(icon.id);
+          }}
+          renderMode={renderMode}
+        />
+      </div>
+    );
+  }, [icons, columnCount, selectedIconId, isFavorite, onSelectIcon, onToggleFavorite, renderMode]);
 
   if (isLoading) {
     return (
@@ -115,39 +77,30 @@ export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavori
     );
   }
 
-  if (validIcons.length === 0) {
+  if (icons.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-secondary)] p-12 text-center">
         <div className="text-4xl mb-4 opacity-20">🔍</div>
         <h3 className="text-lg font-medium text-[var(--text-primary)]">No icons found</h3>
-        <p className="max-w-xs mt-2">
-          {icons.length > 0 
-            ? "Icons were found but they couldn't be loaded. Try another library." 
-            : "Try searching for something else or check another library."}
-        </p>
+        <p className="max-w-xs mt-2">Try searching for something else or check another library.</p>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-hidden bg-[var(--bg-primary)] min-h-0 min-w-0">
+    <div ref={containerRef} className="flex-1 min-h-0 overflow-hidden bg-[var(--bg-primary)]">
       {dimensions.width > 0 && dimensions.height > 0 && (
-        <List
+        <Grid
+          columnCount={columnCount}
+          columnWidth={columnWidth}
           rowCount={rowCount}
           rowHeight={rowHeight}
-          rowComponent={Row}
-          rowProps={{
-            validIcons,
-            columnCount,
-            selectedIconId,
-            isFavorite,
-            onSelectIcon,
-            onToggleFavorite,
-            renderMode
-          }}
+          height={dimensions.height}
+          width={dimensions.width}
           className="scrollbar-hide"
-          style={{ height: dimensions.height, width: dimensions.width }}
-        />
+        >
+          {Cell}
+        </Grid>
       )}
     </div>
   );
