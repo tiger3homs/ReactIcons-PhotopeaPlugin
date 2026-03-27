@@ -17,6 +17,7 @@ export default function App() {
     const saved = localStorage.getItem('iconforge_theme');
     return saved ? saved === 'dark' : true;
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [selectedIcon, setSelectedIcon] = useState<IconMetadata | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [renderMode, setRenderMode] = useState<'svg' | 'png'>('svg');
@@ -32,6 +33,15 @@ export default function App() {
   } = useIconSearch();
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+
+  // Handle sidebar responsive state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Apply theme
   useEffect(() => {
@@ -96,11 +106,13 @@ export default function App() {
     <div className="flex h-screen w-full bg-[var(--bg-primary)] overflow-hidden">
       <Toaster position="bottom-center" theme={isDark ? 'dark' : 'light'} />
       
-      <Sidebar 
-        activeLibrary={libraryId} 
-        onSelectLibrary={setLibraryId}
-        favoritesCount={favorites.length}
-      />
+      {isSidebarOpen && (
+        <Sidebar 
+          activeLibrary={libraryId} 
+          onSelectLibrary={setLibraryId}
+          favoritesCount={favorites.length}
+        />
+      )}
 
         <main className="flex-1 flex flex-col min-w-0">
           <Toolbar 
@@ -109,6 +121,8 @@ export default function App() {
             onShowShortcuts={() => setShowShortcuts(true)}
             renderMode={renderMode}
             onToggleRenderMode={() => setRenderMode(prev => prev === 'svg' ? 'png' : 'svg')}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           />
           <SearchBar 
             value={searchTerm} 

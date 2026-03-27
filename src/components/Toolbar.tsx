@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaSun, FaMoon, FaCircleQuestion, FaImage, FaCode } from 'react-icons/fa6';
+import { FaSun, FaMoon, FaCircleQuestion, FaImage, FaCode, FaBars } from 'react-icons/fa6';
 
 interface ToolbarProps {
   isDark: boolean;
@@ -7,6 +7,8 @@ interface ToolbarProps {
   onShowShortcuts: () => void;
   renderMode: 'svg' | 'png';
   onToggleRenderMode: () => void;
+  isSidebarOpen: boolean;
+  onToggleSidebar: () => void;
 }
 
 export default function Toolbar({ 
@@ -14,10 +16,20 @@ export default function Toolbar({
   onToggleTheme, 
   onShowShortcuts,
   renderMode,
-  onToggleRenderMode
+  onToggleRenderMode,
+  isSidebarOpen,
+  onToggleSidebar
 }: ToolbarProps) {
   return (
     <div className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
+      <button
+        onClick={onToggleSidebar}
+        className="p-2 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+        title="Toggle Sidebar"
+      >
+        <FaBars className="text-lg" />
+      </button>
+
       <div className="flex-1" />
       
       <div className="flex items-center bg-[var(--bg-secondary)] rounded-lg p-1 mr-2">
