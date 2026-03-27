@@ -135,7 +135,7 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
                 ref={iconRef}
                 style={{ fontSize: `${Math.min(size, 200)}px`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                {Icon ? <Icon /> : <span className="text-xs text-red-500">Icon failed to load</span>}
+                <Icon />
               </div>
             </div>
 

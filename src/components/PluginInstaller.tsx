@@ -22,7 +22,9 @@ export default function PluginInstaller() {
   }, []);
 
   const jsonString = config ? JSON.stringify(config, null, 2) : '';
-  const pluginJsonUrl = `${window.location.origin}/plugin.json`;
+  const pluginJsonUrl = window.location.hostname.includes('netlify.app') 
+    ? `${window.location.origin}/plugin.json`
+    : 'https://reacticons-photopeaplugin.netlify.app/plugin.json';
 
   const handleCopyJson = () => {
     navigator.clipboard.writeText(jsonString);

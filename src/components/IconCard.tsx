@@ -22,10 +22,6 @@ interface IconCardProps {
 export default function IconCard({ icon, isSelected, isFavorite, onSelect, onToggleFavorite, renderMode }: IconCardProps) {
   const Icon = icon.component;
   const baseUrl = window.location.origin;
-
-  if (!Icon && renderMode === 'svg') {
-    return null;
-  }
   
   // Use direct function URLs as fallback if redirects fail, but clean URLs are preferred
   // For the grid, we use a default size of 64
@@ -62,7 +58,7 @@ export default function IconCard({ icon, isSelected, isFavorite, onSelect, onTog
       >
         <div className="text-3xl text-[var(--text-primary)] mb-2 group-hover:text-accent transition-colors flex items-center justify-center w-10 h-10">
           {renderMode === 'svg' ? (
-            Icon ? <Icon size={32} /> : <div className="w-8 h-8 bg-red-500/10 rounded flex items-center justify-center text-[8px] text-red-500">ERR</div>
+            <Icon />
           ) : (
             <img 
               src={pngUrl} 

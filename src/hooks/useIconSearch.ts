@@ -29,7 +29,7 @@ export function useIconSearch(initialLibraryId = 'all') {
         // Map results back to components on the client
         const iconsWithComponents = data.results.map((item: any) => {
           const fullIcon = getIconById(item.id);
-          return fullIcon || { ...item, component: null };
+          return fullIcon || { ...item, component: () => null };
         });
         
         setApiIcons(iconsWithComponents);
