@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaArrowRight, FaCopy, FaDownload, FaHeart, FaRegHeart } from 'react-icons/fa6';
 import { IconMetadata } from '../lib/iconRegistry';
-import { iconToArrayBuffer, sendToPhotopea, copyToClipboard, downloadSvg } from '../lib/svgExport';
+import { sendToPhotopea, copyToClipboard, downloadSvg } from '../lib/svgExport';
 import { toast } from 'sonner';
 import * as htmlToImage from 'html-to-image';
 
@@ -23,8 +23,7 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   const Icon = icon.component;
 
   const handleInsert = () => {
-    const buffer = iconToArrayBuffer(Icon, size, color);
-    sendToPhotopea(buffer);
+    sendToPhotopea(Icon, size, color);
     toast.success('Inserted into Photopea!');
   };
 

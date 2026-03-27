@@ -8,7 +8,7 @@ import { useIconSearch } from './hooks/useIconSearch';
 import { useFavorites } from './hooks/useFavorites';
 import { IconMetadata } from './lib/iconRegistry';
 import { Toaster, toast } from 'sonner';
-import { iconToArrayBuffer, sendToPhotopea } from './lib/svgExport';
+import { sendToPhotopea } from './lib/svgExport';
 import { motion, AnimatePresence } from 'motion/react';
 import { FaXmark, FaKeyboard } from 'react-icons/fa6';
 
@@ -72,8 +72,7 @@ export default function App() {
 
       // Enter: Insert into Photopea
       if (e.key === 'Enter' && selectedIcon) {
-        const buffer = iconToArrayBuffer(selectedIcon.component, 128, '#6C63FF');
-        sendToPhotopea(buffer);
+        sendToPhotopea(selectedIcon.component, 128, '#6C63FF');
         toast.success('Inserted into Photopea!');
       }
 
