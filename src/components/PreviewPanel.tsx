@@ -29,8 +29,14 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   };
 
   const handleCopy = async () => {
-    await copyToClipboard(Icon, size, color);
-    toast.success('SVG copied to clipboard!');
+    try {
+      window.focus();
+      await copyToClipboard(Icon, size, color);
+      toast.success('SVG copied to clipboard!');
+    } catch (err) {
+      console.error('SVG Copy Error:', err);
+      toast.error('Failed to copy SVG to clipboard.');
+    }
   };
 
   const handleDownload = () => {
@@ -46,8 +52,9 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
         width: size,
         height: size,
         style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left',
+          transform: 'none',
+          margin: '0',
+          padding: '0',
         }
       });
       
@@ -74,23 +81,34 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
     if (!iconRef.current) return;
     
     try {
+      // Ensure the window has focus before attempting clipboard operations
+      window.focus();
+
       const blob = await htmlToImage.toBlob(iconRef.current, {
         width: size,
         height: size,
         style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left',
+          transform: 'none',
+          margin: '0',
+          padding: '0',
         }
       });
       
       if (!blob) throw new Error('Failed to generate PNG blob');
       
+      // Re-focus just in case the processing caused a blur
+      window.focus();
+
       const item = new ClipboardItem({ 'image/png': blob });
       await navigator.clipboard.write([item]);
       toast.success('PNG copied to clipboard!');
     } catch (err) {
       console.error('PNG Copy Error:', err);
-      toast.error('Failed to copy PNG to clipboard.');
+      if (err instanceof Error && err.name === 'NotAllowedError') {
+        toast.error('Clipboard access denied or document not focused.');
+      } else {
+        toast.error('Failed to copy PNG to clipboard.');
+      }
     }
   };
 
@@ -100,8 +118,14 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
   const pngUrl = `${baseUrl}/icons/${icon.library}/${icon.name}.png?size=${size}&color=${encodeURIComponent(color)}`;
 
   const copyUrl = (url: string, type: string) => {
-    navigator.clipboard.writeText(url);
-    toast.success(`${type} URL copied to clipboard!`);
+    try {
+      window.focus();
+      navigator.clipboard.writeText(url);
+      toast.success(`${type} URL copied to clipboard!`);
+    } catch (err) {
+      console.error('URL Copy Error:', err);
+      toast.error('Failed to copy URL to clipboard.');
+    }
   };
 
   return (
@@ -133,9 +157,16 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
               }} />
               <div 
                 ref={iconRef}
-                style={{ fontSize: `${Math.min(size, 200)}px`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                className="flex items-center justify-center"
+                style={{ 
+                  color, 
+                  width: `${size}px`, 
+                  height: `${size}px`,
+                  transform: size > 200 ? `scale(${200 / size})` : 'none',
+                  transformOrigin: 'center center'
+                }}
               >
-                <Icon />
+                <Icon size={size} />
               </div>
             </div>
 
@@ -144,12 +175,23 @@ export default function PreviewPanel({ icon, onClose, isFavorite, onToggleFavori
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Size</label>
-                  <span className="text-xs font-mono text-accent">{size}px</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="16"
+                      max="4096"
+                      value={size}
+                      onChange={(e) => setSize(Math.max(16, parseInt(e.target.value) || 16))}
+                      className="w-20 px-2 py-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded text-xs font-mono text-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                    <span className="text-xs font-mono text-[var(--text-secondary)]">px</span>
+                  </div>
                 </div>
                 <input
                   type="range"
                   min="16"
-                  max="256"
+                  max="2048"
+                  step="8"
                   value={size}
                   onChange={(e) => setSize(parseInt(e.target.value))}
                   className="w-full accent-accent"

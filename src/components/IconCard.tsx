@@ -35,8 +35,14 @@ export default function IconCard({ icon, isSelected, isFavorite, onSelect, onTog
 
   const handleCopyUrl = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(svgUrl);
-    toast.success('Icon URL copied to clipboard!');
+    try {
+      window.focus();
+      navigator.clipboard.writeText(svgUrl);
+      toast.success('Icon URL copied to clipboard!');
+    } catch (err) {
+      console.error('URL Copy Error:', err);
+      toast.error('Failed to copy URL to clipboard.');
+    }
   };
 
   return (

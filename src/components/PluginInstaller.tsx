@@ -27,15 +27,25 @@ export default function PluginInstaller() {
     : 'https://reacticons-photopeaplugin.netlify.app/plugin.json';
 
   const handleCopyJson = () => {
-    navigator.clipboard.writeText(jsonString);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      window.focus();
+      navigator.clipboard.writeText(jsonString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('JSON Copy Error:', err);
+    }
   };
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(pluginJsonUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      window.focus();
+      navigator.clipboard.writeText(pluginJsonUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('URL Copy Error:', err);
+    }
   };
 
   return (

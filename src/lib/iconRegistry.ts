@@ -69,7 +69,15 @@ export const getIconById = (id: string): IconMetadata | undefined => {
   };
   
   const lib = libMap[libId];
-  if (!lib || !lib[name]) return undefined;
+  if (!lib) {
+    console.warn(`Library not found: ${libId}`);
+    return undefined;
+  }
+  
+  if (!lib[name]) {
+    console.warn(`Icon not found in ${libId}: ${name}`);
+    return undefined;
+  }
   
   return {
     id,
