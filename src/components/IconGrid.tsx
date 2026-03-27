@@ -48,6 +48,14 @@ export default function IconGrid({ icons, selectedIconId, onSelectIcon, isFavori
   }, []);
 
   const validIcons = useMemo(() => icons.filter(icon => !!icon.component), [icons]);
+  
+  // Debug line
+  useEffect(() => {
+    if (validIcons.length > 0) {
+      console.log('First icon sample:', validIcons[0]);
+    }
+  }, [validIcons]);
+
   const columnCount = Math.max(1, Math.floor(dimensions.width / 120));
   const rowCount = Math.ceil(validIcons.length / columnCount);
   const rowHeight = 120;
