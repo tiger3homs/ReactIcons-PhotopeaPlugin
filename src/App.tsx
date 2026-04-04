@@ -138,6 +138,26 @@ export default function App() {
             isLoading={isLoading}
             renderMode={renderMode}
           />
+          
+          {/* Footer for mobile/sidebar-closed */}
+          {!isSidebarOpen && (
+            <div className="p-2 border-t border-[var(--border-color)] bg-[var(--bg-primary)] flex justify-center items-center gap-2 opacity-50">
+              <a 
+                href="https://zeeonlinesolutions.ch/" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:opacity-100 transition-opacity"
+              >
+                <span className="text-[9px] text-[var(--text-secondary)]">made by</span>
+                <img 
+                  src="https://zeeonlinesolutions.ch/logo-mark.svg" 
+                  alt="Zee Online Solutions" 
+                  className="h-3 w-auto"
+                  referrerPolicy="no-referrer"
+                />
+              </a>
+            </div>
+          )}
         </main>
 
       <PreviewPanel 

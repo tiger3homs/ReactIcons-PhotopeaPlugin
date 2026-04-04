@@ -20,7 +20,9 @@ export default function Sidebar({ activeLibrary, onSelectLibrary, favoritesCount
     <aside className="w-64 h-full bg-[var(--bg-secondary)] border-r border-[var(--border-color)] flex flex-col">
       <div className="p-6 flex items-center gap-3">
         <FaHammer className="text-accent text-2xl" />
-        <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">IconForge</h1>
+        <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+          IconForge <span className="sr-only">— React Icons for Photopea Plugin</span>
+        </h1>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
@@ -91,9 +93,24 @@ export default function Sidebar({ activeLibrary, onSelectLibrary, favoritesCount
 
       <div className="p-4 space-y-4 border-t border-[var(--border-color)]">
         <PluginInstaller />
-        <p className="text-[10px] text-[var(--text-secondary)] text-center opacity-50">
-          v1.0.0 • Photopea Plugin
-        </p>
+        <div className="flex flex-col items-center gap-2 opacity-50">
+          <p className="text-[10px] text-[var(--text-secondary)] flex items-center gap-1">
+            v1.0.0 • Photopea Plugin • 
+            <a 
+              href="https://zeeonlinesolutions.ch/" 
+              target="_blank" 
+              rel="noreferrer"
+              className="inline-flex items-center hover:opacity-100 transition-opacity ml-1"
+            >
+              <img 
+                src="https://zeeonlinesolutions.ch/logo-mark.svg" 
+                alt="Zee Online Solutions" 
+                className="h-3 w-auto"
+                referrerPolicy="no-referrer"
+              />
+            </a>
+          </p>
+        </div>
       </div>
     </aside>
   );

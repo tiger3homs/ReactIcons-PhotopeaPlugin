@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaSun, FaMoon, FaCircleQuestion, FaImage, FaCode, FaBars } from 'react-icons/fa6';
+import { FaSun, FaMoon, FaCircleQuestion, FaImage, FaCode, FaBars, FaDownload } from 'react-icons/fa6';
 
 interface ToolbarProps {
   isDark: boolean;
@@ -31,6 +31,17 @@ export default function Toolbar({
       </button>
 
       <div className="flex-1" />
+
+      <a
+        href="/userscript.js"
+        target="_blank"
+        rel="noreferrer"
+        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent hover:bg-accent/20 rounded-lg text-xs font-bold transition-all border border-accent/20 mr-2"
+        title="Install Tampermonkey Userscript"
+      >
+        <FaDownload className="text-[10px]" />
+        <span>Install Userscript</span>
+      </a>
       
       <div className="flex items-center bg-[var(--bg-secondary)] rounded-lg p-1 mr-2">
         <button

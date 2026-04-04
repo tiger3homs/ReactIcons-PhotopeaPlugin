@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://reacticons-photopeaplugin.netlify.app/sitemap.xml
